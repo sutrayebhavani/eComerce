@@ -1,6 +1,7 @@
 package com.scalar.ecomerce.service;
 
 import com.scalar.ecomerce.dto.FakeStoreProductDTO;
+import com.scalar.ecomerce.exceptions.ProductNotFoundException;
 import com.scalar.ecomerce.models.Product;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
@@ -17,9 +18,12 @@ public class FakeStoreProductService implements ProductService {
         this.restTemplate = restTemplate;
     }
 
-    public Product getProductById(int id) {
+    public Product getProductById(int id) throws ProductNotFoundException {
        FakeStoreProductDTO fakeStoreProductDTO = restTemplate.getForObject("https://fakestoreapi.com/products/"+id, FakeStoreProductDTO.class);
-        return fakeStoreProductDTO.getProduct();
+       if(fakeStoreProductDTO==null){
+           throw new ProductNotFoundException("Product not found with id "+id);
+       }
+       return fakeStoreProductDTO.getProduct();
     }
 
     public List<Product> getAllProducts() {

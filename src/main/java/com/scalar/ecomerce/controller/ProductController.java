@@ -1,8 +1,12 @@
 package com.scalar.ecomerce.controller;
 
+import com.scalar.ecomerce.dto.ErrorDTO;
+import com.scalar.ecomerce.exceptions.ProductNotFoundException;
 import com.scalar.ecomerce.models.Product;
 import com.scalar.ecomerce.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 import java.net.URI;
@@ -24,8 +28,13 @@ public class ProductController {
       return result;
     }
     @GetMapping("/products/{id}")
-    public Product getProduct(@PathVariable("id") int id) {
-        return ProductService.getProductById(id);
+    public ResponseEntity<Product> getProduct(@PathVariable("id") int id) throws ProductNotFoundException {
+        Product product = ProductService.getProductById(id);
+        if(product==null){
+            throw new ProductNotFoundException("Product not found");
+        }
+        ResponseEntity<Product> responseEntity = new ResponseEntity<>(product, HttpStatus.OK);
+        return responseEntity;
     }
     @GetMapping("/products")
     public List<Product> getAllProducts() {
@@ -41,5 +50,13 @@ public class ProductController {
     public String deleteProduct(@PathVariable("id") int id) {
         ProductService.deleteProduct(id);
         return "Product deleted successfully";
+    }
+
+    @ExceptionHandler(ProductNotFoundException.class) //handleException method is called when any api method throws ProductNotFoundException
+    public ResponseEntity<ErrorDTO> handleException(Exception ex){
+        ErrorDTO errorDTO = new ErrorDTO();
+        errorDTO.setMessage(ex.getMessage());
+        ResponseEntity<ErrorDTO> responseEntity = new ResponseEntity<>(errorDTO,HttpStatus.NOT_FOUND);
+        return responseEntity;
     }
 }
