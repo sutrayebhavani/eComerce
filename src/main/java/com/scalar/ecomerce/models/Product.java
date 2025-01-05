@@ -1,13 +1,15 @@
 package com.scalar.ecomerce.models;
-import lombok.Getter;
-import lombok.Setter;
 
-public class Product {
-    private int id;
+import jakarta.persistence.Entity;
+import jakarta.persistence.ManyToOne;
+
+@Entity
+public class Product extends BaseModel {
     private String name;
     private String description;
     private double price;
     private String imageUrl;
+    @ManyToOne
     private Category  category;
 
     public Product() {
@@ -19,16 +21,8 @@ public class Product {
         this.price = price;
         this.description = description;
         this.name = name;
-        this.id = id;
     }
 
-    public int getId() {
-        return id;
-    }
-
-    public void setId(int id) {
-        this.id = id;
-    }
 
     public String getName() {
         return name;

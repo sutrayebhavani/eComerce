@@ -5,6 +5,7 @@ import com.scalar.ecomerce.exceptions.ProductNotFoundException;
 import com.scalar.ecomerce.models.Product;
 import com.scalar.ecomerce.service.ProductService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -20,16 +21,19 @@ import java.util.List;
 public class ProductController {
     //crud on product
     //@RequestMapping(value = "/hello",method = RequestMethod.GET)
-    @Autowired
-    private  ProductService ProductService;
+
+    private  ProductService productService;
+    public ProductController(@Qualifier("dbProductService") ProductService productService) {
+        this.productService = productService;
+    }
     @PostMapping("/products")
     public Product createProduct(@RequestBody Product product) {
-      Product result = ProductService.addProduct(product.getId(),product.getName(),product.getDescription(),product.getPrice(),product.getImageUrl(),product.getCategory().getName());
+      Product result = productService.addProduct(product.getName(),product.getDescription(),product.getPrice(),product.getImageUrl(),product.getCategory().getName());
       return result;
     }
     @GetMapping("/products/{id}")
     public ResponseEntity<Product> getProduct(@PathVariable("id") int id) throws ProductNotFoundException {
-        Product product = ProductService.getProductById(id);
+        Product product = productService.getProductById(id);
         if(product==null){
             throw new ProductNotFoundException("Product not found");
         }
@@ -38,17 +42,17 @@ public class ProductController {
     }
     @GetMapping("/products")
     public List<Product> getAllProducts() {
-       return ProductService.getAllProducts();
+       return productService.getAllProducts();
 
     }
     @PutMapping("/products/{id}")
     public Product updateProduct(@PathVariable("id") int id,@RequestBody Product product) {
-        return ProductService.updateProduct(id,product.getName(),product.getDescription(),product.getPrice(),product.getImageUrl(),product.getCategory().getName());
+        return productService.updateProduct(id,product.getName(),product.getDescription(),product.getPrice(),product.getImageUrl(),product.getCategory().getName());
     }
 
     @DeleteMapping("/products/{id}")
     public String deleteProduct(@PathVariable("id") int id) {
-        ProductService.deleteProduct(id);
+        productService.deleteProduct(id);
         return "Product deleted successfully";
     }
 
